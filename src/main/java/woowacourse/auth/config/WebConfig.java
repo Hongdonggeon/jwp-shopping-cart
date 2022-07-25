@@ -1,13 +1,15 @@
 package woowacourse.auth.config;
 
 import java.util.List;
+import javax.servlet.Filter;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.method.support.HandlerMethodArgumentResolver;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import woowacourse.auth.filter.LoginFilter;
 import woowacourse.auth.support.JwtTokenProvider;
 
 @Configuration
@@ -27,11 +29,11 @@ public class WebConfig implements WebMvcConfigurer {
                 .exposedHeaders(HttpHeaders.LOCATION);
     }
 
-    @Override
-    public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginInterceptor(jwtTokenProvider))
-                .addPathPatterns("/**");
-    }
+//    @Override
+//    public void addInterceptors(InterceptorRegistry registry) {
+//        registry.addInterceptor(new LoginInterceptor(jwtTokenProvider))
+//                .addPathPatterns("/**");
+//    }
 
     @Override
     public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
@@ -41,5 +43,21 @@ public class WebConfig implements WebMvcConfigurer {
     @Bean
     public LoginCustomerResolver loginCustomerResolver() {
         return new LoginCustomerResolver(jwtTokenProvider);
+    }
+
+    @Bean
+    public LoginFilter loginFilter() {
+        return new LoginFilter(jwtTokenProvider);
+    }
+
+    @Bean
+    public FilterRegistrationBean addFilter() {
+        FilterRegistrationBean<Filter> filterRegistrationBean = new
+                FilterRegistrationBean<>();
+
+        filterRegistrationBean.setFilter(loginFilter());
+        filterRegistrationBean.setOrder(1);
+        filterRegistrationBean.addUrlPatterns("/users/me/*");
+        return filterRegistrationBean;
     }
 }

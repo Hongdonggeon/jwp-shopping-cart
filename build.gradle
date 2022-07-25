@@ -31,6 +31,9 @@ dependencies {
 
     runtimeOnly 'mysql:mysql-connector-java'
 
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
 }
 
 test {
