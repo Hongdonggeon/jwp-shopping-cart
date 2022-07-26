@@ -13,6 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import woowacourse.auth.support.AuthorizationExtractor;
 import woowacourse.auth.support.JwtTokenProvider;
+import woowacourse.shoppingcart.exception.nobodyexception.UnauthorizedTokenException;
 
 @Slf4j
 public class LoginFilter implements Filter {
@@ -32,14 +33,13 @@ public class LoginFilter implements Filter {
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
         HttpServletRequest servletRequest = (HttpServletRequest) request;
-        HttpServletResponse servletResponse = (HttpServletResponse) response;
-        final boolean isValid = validateToken(servletRequest, response);
-
-        if (!isValid) {
+        try {
+            validateToken(servletRequest, response);
+            chain.doFilter(request, response);
+        } catch (Exception e) {
+            HttpServletResponse servletResponse = (HttpServletResponse) response;
             servletResponse.setStatus(HttpStatus.UNAUTHORIZED.value());
-            return;
         }
-        chain.doFilter(request, response);
     }
 
     @Override
@@ -47,8 +47,11 @@ public class LoginFilter implements Filter {
         log.info("LoginFilter destroy");
     }
 
-    private boolean validateToken(HttpServletRequest request, final ServletResponse servletResponse) {
+    private void validateToken(HttpServletRequest request, final ServletResponse servletResponse) {
         String token = AuthorizationExtractor.extract(request);
-        return jwtTokenProvider.validateToken(token);
+        boolean isValidate = jwtTokenProvider.validateToken(token);
+        if (!isValidate) {
+            throw new UnauthorizedTokenException();
+        }
     }
 }
