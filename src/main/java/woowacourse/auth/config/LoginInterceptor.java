@@ -1,15 +1,20 @@
 package woowacourse.auth.config;
 
+import java.util.Objects;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.http.HttpMethod;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
 import woowacourse.auth.support.Auth;
 import woowacourse.auth.support.AuthorizationExtractor;
 import woowacourse.auth.support.JwtTokenProvider;
 import woowacourse.shoppingcart.exception.nobodyexception.UnauthorizedTokenException;
 
+@Slf4j
+@Component
 public class LoginInterceptor implements HandlerInterceptor {
 
     private final JwtTokenProvider jwtTokenProvider;
@@ -21,11 +26,8 @@ public class LoginInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler)
             throws Exception {
-        if (request.getMethod().equals(HttpMethod.OPTIONS.name())) {
-            return true;
-        }
-
-        if (!hasAnnotation(handler)) {
+        log.info("LoginInterceptor.preHandle");
+        if (hasNotAnnotation(handler)) {
             return true;
         }
 
@@ -33,10 +35,23 @@ public class LoginInterceptor implements HandlerInterceptor {
         return true;
     }
 
-    private boolean hasAnnotation(Object handler) {
+    @Override
+    public void postHandle(final HttpServletRequest request, final HttpServletResponse response, final Object handler,
+                           final ModelAndView modelAndView) throws Exception {
+        log.info("LoginInterceptor.postHandle");
+    }
+
+    @Override
+    public void afterCompletion(final HttpServletRequest request, final HttpServletResponse response,
+                                final Object handler, final Exception ex)
+            throws Exception {
+        log.info("LoginInterceptor.afterCompletion");
+    }
+
+    private boolean hasNotAnnotation(Object handler) {
         HandlerMethod handlerMethod = (HandlerMethod) handler;
 
-        return null != handlerMethod.getMethodAnnotation(Auth.class);
+        return Objects.isNull(handlerMethod.getMethodAnnotation(Auth.class));
     }
 
     private void validateToken(HttpServletRequest request) {

@@ -229,6 +229,8 @@ public class CustomerAcceptanceTest extends AcceptanceTest {
                     .extract()
                     .as(TokenResponse.class)
                     .getAccessToken();
+
+            System.out.println("accessToken = " + accessToken);
         }
 
         @Nested

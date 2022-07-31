@@ -3,6 +3,7 @@ package woowacourse.shoppingcart.ui;
 import java.util.List;
 import java.util.stream.Collectors;
 import javax.validation.Valid;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,6 +26,7 @@ import woowacourse.shoppingcart.dto.CartsResponse;
 
 @RestController
 @RequestMapping("/users/me/carts")
+@Slf4j
 public class CartItemController {
     private final CartService cartService;
     private final CustomerService customerService;
@@ -41,6 +43,7 @@ public class CartItemController {
                                             @RequestBody CartAdditionRequest request) {
         Customer customer = customerService.getByEmail(email);
         cartService.addCart(request.getProductId(), customer);
+        log.info("CartItemController.addCartItema");
         return ResponseEntity.noContent().build();
     }
 
