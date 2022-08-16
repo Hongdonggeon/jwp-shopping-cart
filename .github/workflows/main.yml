@@ -12,7 +12,7 @@ on:
 # job 의 공통된 옵션
 defaults:
   run:
-		# 작업을 수행할 디렉토리 설정
+    # 작업을 수행할 디렉토리 설정
     working-directory: ./backend/test/
 
 # 실행 해야 할 job 들에 대한 설정
